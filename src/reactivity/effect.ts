@@ -2,18 +2,31 @@
 // 创建一个 effect ->
 import { extend } from "../shared";
 
+let activeEffect: any; // 当前的依赖项
+let shouldTrack: any; // 是否运行依赖收集
+
+// Map 结构  [ { key:'', value: '' } ]  key 的设定可以多样性。相对 Obj 有更多的拓展，例如 key : funciton()
+// targetMap 用于储存依赖
+const targetMap = new Map();
 // 使用类 构造 对应的依赖对象
 class ReactiveEffect {
   private _fn: Function;
-  deps = [];
+  deps = []; // 依赖项
   active = true;
   onStop?: Function;
   constructor(fn: Function, public scheduler?: Function) {
     this._fn = fn;
   }
   run() {
+    // 会收集依赖
+    if (!this.active) {
+      return this._fn();
+    }
     activeEffect = this;
-    return this._fn();
+    shouldTrack = true;
+    const result = this._fn();
+    shouldTrack = false;
+    return result;
   }
   stop() {
     if (this.active) {
@@ -31,15 +44,14 @@ function cleanupEffect(effect) {
   effect.deps.forEach((dep: any) => {
     dep.delete(effect);
   });
+  effect.deps.length = 0;
 }
-// Map 结构  [ { key:'', value: '' } ]  key 的设定可以多样性。相对 Obj 有更多的拓展，例如 key : funciton()
-// targetMap 用于储存依赖
-const targetMap = new Map();
 
 export function track(traget: any, key: any) {
   // 依赖收集 && 触发依赖 函数 用于 后面响应数据，更新数据
   // 先取出 全部的 target，
   // target -> key -> dep
+  if (!isTracking()) return;
   let depsMap = targetMap.get(traget);
 
   if (!depsMap) {
@@ -56,15 +68,26 @@ export function track(traget: any, key: any) {
     dep = new Set();
     depsMap.set(key, dep);
   }
-  if (!activeEffect) return;
+  trackEffect(dep);
+}
+export function trackEffect(dep) {
+  if (dep.has(activeEffect)) return; // 解决反复收集
   dep.add(activeEffect);
 
   activeEffect.deps.push(dep);
 }
+
+export function isTracking() {
+  return shouldTrack && activeEffect !== undefined;
+}
+
 export function trigger(traget: any, key: any) {
   let depsMap = targetMap.get(traget);
   let dep = depsMap.get(key);
 
+  triggerEffect(dep);
+}
+export function triggerEffect(dep) {
   for (const effect of dep) {
     if (effect.scheduler) {
       effect.scheduler();
@@ -73,7 +96,6 @@ export function trigger(traget: any, key: any) {
     }
   }
 }
-let activeEffect: any;
 // 依赖收集
 export function effect(fn: Function, options: any = {}) {
   const _effect = new ReactiveEffect(fn, options.scheduler);
