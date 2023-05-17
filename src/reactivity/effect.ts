@@ -9,7 +9,7 @@ let shouldTrack: any; // 是否运行依赖收集
 // targetMap 用于储存依赖
 const targetMap = new Map();
 // 使用类 构造 对应的依赖对象
-class ReactiveEffect {
+export class ReactiveEffect {
   private _fn: Function;
   deps = []; // 依赖项
   active = true;
