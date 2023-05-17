@@ -6,6 +6,7 @@ class RefImpl {
   private _value;
   private _raw_value;
   public dep;
+  public __v__isRef = true;
   constructor(value) {
     this._value = convert(value); //value 有可能是Object
     this.dep = new Set();
@@ -36,4 +37,12 @@ function convert(value) {
 
 export function ref(value) {
   return new RefImpl(value);
+}
+
+export function isRef(ref) {
+  return !!ref.__v__isRef;
+}
+
+export function unRef(ref) {
+  return isRef(ref) ? ref.value : ref;
 }
