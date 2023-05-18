@@ -1,3 +1,5 @@
+import { isObject } from "../shared/index";
+
 export function createComponentInstance(vnode) {
   return {
     vnode,
@@ -24,7 +26,7 @@ function setupStatefulComponet(instance: any) {
 function handleSetupResult(instance: any, setupResult: any) {
   // fn ,obj
   // TODO function
-  if (typeof setupResult === "object") {
+  if (isObject(setupResult)) {
     instance.setupState = setupResult;
   }
   finishComponentSetup(instance);
