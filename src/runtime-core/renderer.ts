@@ -20,13 +20,13 @@ function processElement(vnode: any, container: any) {
 }
 
 function mountElement(vnode: any, container: any) {
-  const el = document.createElement(vnode.type);
+  const el = (vnode.el = document.createElement(vnode.type));
 
   const { children, props } = vnode;
 
   // 判断children是一个string 还是一个 vnode(Object)
   if (typeof children === "string") {
-    el.textContent = children;  // 文本节点直接添加
+    el.textContent = children; // 文本节点直接添加
   } else if (Array.isArray(children)) {
     mountChildren(children, el); // vnode子节点是用数组表示
   }
@@ -48,16 +48,18 @@ function processComponent(vnode: any, container: any) {
   mountComponent(vnode, container);
 }
 // 挂在组件节点
-function mountComponent(vnode: any, container) {
-  const instance = createComponentInstance(vnode);
+function mountComponent(initialVnode: any, container) {
+  const instance = createComponentInstance(initialVnode);
   setupComponent(instance);
-  setupRenderEffect(instance, container);
+  setupRenderEffect(instance, initialVnode, container);
 }
 
-function setupRenderEffect(instance, container) {
-  const subTree = instance.render();
+function setupRenderEffect(instance, initialVnode, container) {
+  const subTree = instance.render.call(instance.proxy);
   // vnode
   // vnode -> patch
   // vn-> element -> mountelement
   patch(subTree, container);
+
+  initialVnode.el = subTree.el;
 }
