@@ -1,15 +1,19 @@
+import { emit } from "./componentEmit";
 import { shallowReadonly } from "../reactivity/reactive";
 import { isObject } from "../shared/index";
 import { initPorps } from "./componentsProps";
 import { PublicInstanceProxyHandlers } from "./componentsPublicInstance";
 
 export function createComponentInstance(vnode) {
-  return {
+  const component = {
     vnode,
     type: vnode.type,
     setupState: {},
     props: {},
+    emit: (event) => {},
   };
+  component.emit = emit.bind(null, component);
+  return component;
 }
 
 export function setupComponent(instance) {
@@ -27,7 +31,7 @@ function setupStatefulComponet(instance: any) {
   const { setup } = Component;
   if (setup) {
     // setup 可能是 fn or  object
-    const setupResult = setup(instance.props);
+    const setupResult = setup(instance.props, { emit: instance.emit });
     handleSetupResult(instance, setupResult);
   }
 }
