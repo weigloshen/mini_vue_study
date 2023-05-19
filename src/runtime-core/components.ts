@@ -1,4 +1,6 @@
+import { shallowReadonly } from "../reactivity/reactive";
 import { isObject } from "../shared/index";
+import { initPorps } from "./componentsProps";
 import { PublicInstanceProxyHandlers } from "./componentsPublicInstance";
 
 export function createComponentInstance(vnode) {
@@ -6,12 +8,13 @@ export function createComponentInstance(vnode) {
     vnode,
     type: vnode.type,
     setupState: {},
+    props: {},
   };
 }
 
 export function setupComponent(instance) {
   //TODO!
-  // initPorps()
+  initPorps(instance, shallowReadonly(instance.vnode.props));
   // initSlots()
   setupStatefulComponet(instance);
 }
@@ -24,7 +27,7 @@ function setupStatefulComponet(instance: any) {
   const { setup } = Component;
   if (setup) {
     // setup 可能是 fn or  object
-    const setupResult = setup();
+    const setupResult = setup(instance.props);
     handleSetupResult(instance, setupResult);
   }
 }
