@@ -10,7 +10,6 @@ function patch(vnode: any, container: any) {
   // 处理组件
   // 判断一下 是不是element 类型  processElement
   const { shapeFlag } = vnode;
-  console.log(shapeFlag);
   if (shapeFlag & ShapeFlags.ELEMENT) {
     processElement(vnode, container);
   } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
@@ -32,9 +31,14 @@ function mountElement(vnode: any, container: any) {
   } else if (shapeFlag & ShapeFlags.CHILDREN_ARRAY) {
     mountChildren(children, el); // vnode子节点是用数组表示
   }
+  const isOn = (key) => /^on[A-Z]/.test(key);
   // 添加vnode属性
   for (const key in props) {
-    el.setAttribute(key, props[key]);
+    if (isOn(key)) {
+      el.addEventListener(key.slice(2).toLocaleLowerCase(), props[key]);
+    } else {
+      el.setAttribute(key, props[key]);
+    }
   }
 
   container.append(el);

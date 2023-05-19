@@ -8,6 +8,12 @@ export const App = {
       {
         id: "hei",
         class: "b-1 bg",
+        onClick() {
+          console.log("click");
+        },
+        onMousedown() {
+          console.log("Mousedown");
+        }
       },
       "hi " + this.msg
       // [
