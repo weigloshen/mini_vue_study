@@ -1,3 +1,4 @@
+import { ShapeFlags } from "../shared/ShapeFlags";
 import { isObject } from "../shared/index";
 import { createComponentInstance, setupComponent } from "./components";
 
@@ -8,10 +9,11 @@ export function render(vnode, container) {
 function patch(vnode: any, container: any) {
   // 处理组件
   // 判断一下 是不是element 类型  processElement
-
-  if (typeof vnode.type === "string") {
+  const { shapeFlag } = vnode;
+  console.log(shapeFlag);
+  if (shapeFlag & ShapeFlags.ELEMENT) {
     processElement(vnode, container);
-  } else if (isObject(vnode.type)) {
+  } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
     processComponent(vnode, container);
   }
 }
@@ -22,12 +24,12 @@ function processElement(vnode: any, container: any) {
 function mountElement(vnode: any, container: any) {
   const el = (vnode.el = document.createElement(vnode.type));
 
-  const { children, props } = vnode;
+  const { children, props, shapeFlag } = vnode;
 
   // 判断children是一个string 还是一个 vnode(Object)
-  if (typeof children === "string") {
+  if (shapeFlag & ShapeFlags.CHILDREN_STRING) {
     el.textContent = children; // 文本节点直接添加
-  } else if (Array.isArray(children)) {
+  } else if (shapeFlag & ShapeFlags.CHILDREN_ARRAY) {
     mountChildren(children, el); // vnode子节点是用数组表示
   }
   // 添加vnode属性

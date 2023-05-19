@@ -19,14 +19,14 @@ export function setupComponent(instance) {
 function setupStatefulComponet(instance: any) {
   const Component = instance.type;
 
+  // ？？？不可以放在前面要等 handleSetupResult(instance, setupResult); 执行完成
+  instance.proxy = new Proxy({ _: instance }, PublicInstanceProxyHandlers);
   const { setup } = Component;
   if (setup) {
     // setup 可能是 fn or  object
     const setupResult = setup();
     handleSetupResult(instance, setupResult);
   }
-  // 不可以放在前面要等 handleSetupResult(instance, setupResult); 执行完成
-  instance.proxy = new Proxy({ _: instance }, PublicInstanceProxyHandlers);
 }
 
 function handleSetupResult(instance: any, setupResult: any) {
