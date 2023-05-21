@@ -5,10 +5,14 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <style></style>
   </head>
   <body>
-    <app id="App"></app>
-    <script src="main.js" type="module"></script>
+    <div id="app"></div>
   </body>
+  <script type="module">
+    import { createApp } from "../../lib/guide_mini_vue.esm.js";
+    import App from "./App.js";
+    const rootContainer = document.querySelector("#app");
+    createApp(App).mount(rootContainer);
+  </script>
 </html>

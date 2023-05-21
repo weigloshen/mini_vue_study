@@ -1,3 +1,3 @@
-export function initPorps(instance, props) {
+export function initProps(instance, props) {
   instance.props = props || {};
 }

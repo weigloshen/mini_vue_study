@@ -13,7 +13,7 @@ export const App = {
       {
         header: ({ age }) => [
           h("p", { class: "header" }, "header " + age),
-          createTextVnode("NIHAO"),
+          createTextVnode("你好"),
         ],
         footer: () => h("p", { class: "footer" }, "footer"),
       }

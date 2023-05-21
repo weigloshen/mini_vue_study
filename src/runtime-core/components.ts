@@ -1,17 +1,19 @@
 import { emit } from "./componentEmit";
 import { shallowReadonly } from "../reactivity/reactive";
 import { isObject } from "../shared/index";
-import { initPorps } from "./componentsProps";
+import { initProps } from "./componentsProps";
 import { PublicInstanceProxyHandlers } from "./componentsPublicInstance";
 import { initSlots } from "./componentSlots";
 
-export function createComponentInstance(vnode) {
+export function createComponentInstance(vnode, parent) {
   const component = {
     vnode,
     type: vnode.type,
     setupState: {},
     props: {},
     slots: {},
+    provides: parent ? parent.provides : {},
+    parent,
     emit: (event) => {},
   };
   component.emit = emit.bind(null, component);
@@ -20,12 +22,12 @@ export function createComponentInstance(vnode) {
 
 export function setupComponent(instance) {
   //TODO!
-  initPorps(instance, instance.vnode.props);
+  initProps(instance, instance.vnode.props);
   initSlots(instance, instance.vnode.children);
-  setupStatefulComponet(instance);
+  setupStatefulComponent(instance);
 }
 
-function setupStatefulComponet(instance: any) {
+function setupStatefulComponent(instance: any) {
   const Component = instance.type;
 
   // ？？？不可以放在前面要等 handleSetupResult(instance, setupResult); 执行完成
