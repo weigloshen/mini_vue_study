@@ -32,7 +32,7 @@
 >
 > #### 实现组件代理对象 ✔
 >
-> #### shapeFlags【 ✔
+> #### shapeFlags ✔
 >
 > #### 实现注册事件功能 ✔
 >
@@ -45,3 +45,7 @@
 > #### 实现 Fragment 和 Text 类型节点 ✔
 >
 > #### 实现 getCurrentInstance ✔
+>
+> #### 实现 实现 provide_inject ✔
+>
+> #### 实现自定义渲染器 custom ✔
