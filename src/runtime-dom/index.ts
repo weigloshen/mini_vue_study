@@ -1,12 +1,12 @@
 import { createRenderer } from "../runtime-core/index";
 
 export function createElement(type) {
-  console.log("createElement--------");
+  // console.log("createElement--------");
 
   return document.createElement(type);
 }
 function patchProps(el, key, value) {
-  console.log("patchProps--------");
+  // console.log("patchProps--------");
   const isOn = (key) => /^on[A-Z]/.test(key);
   if (isOn(key)) {
     el.addEventListener(key.slice(2).toLocaleLowerCase(), value);
@@ -15,7 +15,7 @@ function patchProps(el, key, value) {
   }
 }
 export function insert(el, parent) {
-  console.log("insert------");
+  // console.log("insert------");
 
   parent.append(el);
 }

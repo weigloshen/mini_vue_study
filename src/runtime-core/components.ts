@@ -4,6 +4,7 @@ import { isObject } from "../shared/index";
 import { initProps } from "./componentsProps";
 import { PublicInstanceProxyHandlers } from "./componentsPublicInstance";
 import { initSlots } from "./componentSlots";
+import { proxyRefs } from "../index";
 
 export function createComponentInstance(vnode, parent) {
   const component = {
@@ -12,6 +13,8 @@ export function createComponentInstance(vnode, parent) {
     setupState: {},
     props: {},
     slots: {},
+    isMounted: false,
+    subTree: {},
     provides: parent ? parent.provides : {},
     parent,
     emit: (event) => {},
@@ -48,7 +51,7 @@ function handleSetupResult(instance: any, setupResult: any) {
   // fn ,obj
   // TODO function
   if (isObject(setupResult)) {
-    instance.setupState = setupResult;
+    instance.setupState = proxyRefs(setupResult);
   }
 
   finishComponentSetup(instance);
