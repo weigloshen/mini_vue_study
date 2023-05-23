@@ -10,6 +10,8 @@ export function createRenderer(options) {
     createElement: hostCreateElement,
     patchProp: hostPatchProps,
     insert: hostInsert,
+    remove: hostRemove,
+    setElementText: hostSetElementText,
   } = options;
 
   function render(vnode, container, parentComponent) {
@@ -60,16 +62,48 @@ export function createRenderer(options) {
     if (!n1) {
       mountElement(n2, container, parentComponent);
     } else {
-      patchElement(n1, n2, container);
+      patchElement(n1, n2, container, parentComponent);
     }
   }
 
-  function patchElement(n1, n2, container) {
+  function patchElement(n1, n2, container, parentComponent) {
     const oldProps = n1.props || {};
     const newProps = n2.props || {};
     const el = (n2.el = n1.el);
+
+    patchChildren(n1, n2, el, parentComponent);
     patchProps(el, oldProps, newProps);
   }
+
+  function patchChildren(n1, n2, container, parentComponent) {
+    const preShapeFlag = n1.shapeFlag;
+    const nextShapeFlag = n2.shapeFlag;
+    const c1 = n1.children;
+    let c2 = n2.children;
+    if (nextShapeFlag & ShapeFlags.CHILDREN_STRING) {
+      if (preShapeFlag & ShapeFlags.CHILDREN_ARRAY) {
+        // 清空老的 children
+        unmountChildren(n1.children);
+      }
+      if (c1 !== c2) {
+        // 设置text
+        hostSetElementText(container, c2);
+      }
+    } else {
+      if (preShapeFlag & ShapeFlags.CHILDREN_STRING) {
+        hostSetElementText(container, "");
+        mountChildren(c2, container, parentComponent);
+      }
+    }
+  }
+
+  function unmountChildren(children) {
+    for (let index = 0; index < children.length; index++) {
+      const el = children[index].el;
+      hostRemove(el);
+    }
+  }
+
   const EMPTY_OBJ = {};
   function patchProps(el, oldProps, newProps) {
     for (const key in newProps) {
