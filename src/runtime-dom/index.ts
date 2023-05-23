@@ -5,13 +5,17 @@ export function createElement(type) {
 
   return document.createElement(type);
 }
-function patchProps(el, key, value) {
+function patchProp(el: Element, key, preValue, nextValue) {
   // console.log("patchProps--------");
   const isOn = (key) => /^on[A-Z]/.test(key);
   if (isOn(key)) {
-    el.addEventListener(key.slice(2).toLocaleLowerCase(), value);
+    el.addEventListener(key.slice(2).toLocaleLowerCase(), nextValue);
   } else {
-    el.setAttribute(key, value);
+    if (nextValue === null || nextValue === undefined) {
+      el.removeAttribute(key);
+    } else {
+      el.setAttribute(key, nextValue);
+    }
   }
 }
 export function insert(el, parent) {
@@ -22,7 +26,7 @@ export function insert(el, parent) {
 
 const renderer: any = createRenderer({
   createElement,
-  patchProps,
+  patchProp,
   insert,
 });
 

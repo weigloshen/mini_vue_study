@@ -8,7 +8,7 @@ import { Fragment, Text } from "./vnode";
 export function createRenderer(options) {
   const {
     createElement: hostCreateElement,
-    patchProps: hostPatchProps,
+    patchProp: hostPatchProps,
     insert: hostInsert,
   } = options;
 
@@ -26,14 +26,20 @@ export function createRenderer(options) {
     switch (type) {
       case Fragment:
         processFragment(n1, n2.children, container, parentComponent);
+        console.log("processFragment");
+
         break;
       case Text:
         processText(n1, n2, container);
+        console.log("processText");
         break;
       default:
         if (shapeFlag & ShapeFlags.ELEMENT) {
           processElement(n1, n2, container, parentComponent);
+          console.log("processElement");
         } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
+          console.log("parentComponent");
+
           processComponent(n1, n2, container, parentComponent);
         }
         break;
@@ -59,7 +65,28 @@ export function createRenderer(options) {
   }
 
   function patchElement(n1, n2, container) {
-    console.log("patchElement");
+    const oldProps = n1.props || {};
+    const newProps = n2.props || {};
+    const el = (n2.el = n1.el);
+    patchProps(el, oldProps, newProps);
+  }
+  const EMPTY_OBJ = {};
+  function patchProps(el, oldProps, newProps) {
+    for (const key in newProps) {
+      const prevProp = oldProps[key];
+      const nextProp = newProps[key];
+
+      if (prevProp !== newProps) {
+        hostPatchProps(el, key, prevProp, nextProp);
+      }
+    }
+    if (oldProps !== EMPTY_OBJ) {
+      for (const key in oldProps) {
+        if (!(key in newProps)) {
+          hostPatchProps(el, key, oldProps[key], null);
+        }
+      }
+    }
   }
 
   function mountElement(vnode: any, container: any, parentComponent) {
@@ -78,7 +105,7 @@ export function createRenderer(options) {
     // // 添加vnode属性
     for (const key in props) {
       const value = props[key];
-      hostPatchProps(el, key, value);
+      hostPatchProps(el, key, null, value);
     }
 
     // container.append(el);
@@ -114,7 +141,7 @@ export function createRenderer(options) {
         ));
         // vnode
         // vnode -> patch
-        // vn-> element -> mountelement
+        // vn-> element -> mount element
         patch(null, subTree, container, instance);
 
         initialVnode.el = subTree.el;
@@ -124,7 +151,8 @@ export function createRenderer(options) {
         const subTree = instance.render.call(proxy);
         const preSubTree = instance.subTree;
         instance.subTree = subTree;
-        console.log(preSubTree);
+        // console.log(preSubTree);
+        console.log(subTree);
 
         // console.log("current", subTree);
         // console.log("before", preSubTree);
